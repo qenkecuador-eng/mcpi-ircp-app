@@ -750,16 +750,43 @@ La app ahora permite dos niveles de cálculo:
 
 Los cambios realizados por usuarios quedan en la sesión del navegador. Para conservarlos, descargue la base CSV/Excel o la rúbrica Excel. Para hacerlos permanentes en la app pública, suba el archivo actualizado al repositorio de GitHub reemplazando el archivo correspondiente.
 """)
-
 st.caption("Herramienta académica orientativa. No sustituye análisis jurídico definitivo ni control judicial del caso concreto.")
+@echo off
+title MCPI-IRCP-I v6 subcriterios
+cd /d "%~dp0"
+py -m pip install -r requirements.txt
+py -m streamlit run app.py
+pause
+# Matriz MCPI-IRCP-I v6 con subcriterios
 
+Versión actualizada de la aplicación Streamlit para evaluar riesgo de criminalización penal intercultural.
+
+## Novedades v6
+
+- Módulo nuevo: Rúbrica de subcriterios.
+- Cálculo de variables principales desde subcriterios ponderados.
+- Lectura del archivo `subcriterios_MCPI_IRCP_app_unico.xlsx`.
+- Edición directa de subcriterios en la app.
+- Exportación de rúbrica actualizada.
+- Mantiene base ampliada de delitos de Argentina y Ecuador.
+
+## Archivos requeridos
+
+- `app.py`
+- `requirements.txt`
+- `tipos_penales_base_ampliada.csv`
+- `subcriterios_MCPI_IRCP_app_unico.xlsx`
+
+## Streamlit Cloud
+
+- Repository: `qenkecuador-eng/mcpi-ircp-app`
+- Branch: `main`
+- Main file path: `app.py`
 streamlit>=1.31
 pandas>=2.0
 matplotlib>=3.7
 openpyxl>=3.1
-python-docx>=1.1
-
-País,Norma,Artículo,Tipo penal,Categoría,Estado,Contexto típico de protesta,Legalidad,Claridad normativa,Lesividad,Mínima intervención penal,Idoneidad,Necesidad penal,Peso derechos indígenas,Peso interés estatal,Observación metodológica
+python-docx>=1.País,Norma,Artículo,Tipo penal,Categoría,Estado,Contexto típico de protesta,Legalidad,Claridad normativa,Lesividad,Mínima intervención penal,Idoneidad,Necesidad penal,Peso derechos indígenas,Peso interés estatal,Observación metodológica
 Argentina,Código Penal,art. 226 CP,Rebelión / sublevación,Orden constitucional,Base tesis,"Protesta indígena, defensa territorial o conflicto político-institucional.",70,65,60,45,65,55,36,32,Requiere interpretación restrictiva si se invoca frente a protesta.
 Argentina,Código Penal,art. 230 CP,Sedición,Orden público / institucional,Base tesis,Protesta indígena o conflicto institucional sin violencia grave acreditada.,60,55,50,35,55,45,40,24,Riesgo por amplitud si no existe alzamiento grave e idóneo.
 Argentina,Código Penal,art. 213 CP,Apología,Expresión / discurso,Base tesis,"Discurso crítico, protesta indígena, expresión colectiva o defensa territorial.",40,35,40,25,40,30,48,16,Riesgo alto de afectación a libertad de expresión.
@@ -792,28 +819,4 @@ Ecuador,COIP,art. 204 COIP,Daño a bien ajeno,Propiedad / bienes,Ampliado prelim
 Ecuador,COIP,art. 154 COIP,Intimidación,Libertad individual,Ampliado preliminar,Mensajes o acciones colectivas interpretadas como amenaza.,55,50,45,30,50,35,42,22,Riesgo por equiparar presión social o política con intimidación penal.
 Ecuador,COIP,arts. 152 y ss. COIP,Lesiones,Integridad personal,Ampliado preliminar,Confrontaciones en protestas u operativos de fuerza pública.,70,65,65,55,70,60,30,45,"Requiere prueba individualizada, nexo causal y proporcionalidad."
 Ecuador,COIP,arts. 161–162 COIP,Secuestro / retención ilegal,Libertad individual,Ampliado preliminar,"Retenciones, bloqueos o conflictos comunitarios con autoridades o empresas.",60,55,50,40,55,45,38,32,"Diferenciar protesta, bloqueo y verdadera privación de libertad."
-# Matriz MCPI-IRCP-I v6 con subcriterios
-
-Versión actualizada de la aplicación Streamlit para evaluar riesgo de criminalización penal intercultural.
-
-## Novedades v6
-
-- Módulo nuevo: Rúbrica de subcriterios.
-- Cálculo de variables principales desde subcriterios ponderados.
-- Lectura del archivo `subcriterios_MCPI_IRCP_app_unico.xlsx`.
-- Edición directa de subcriterios en la app.
-- Exportación de rúbrica actualizada.
-- Mantiene base ampliada de delitos de Argentina y Ecuador.
-
-## Archivos requeridos
-
-- `app.py`
-- `requirements.txt`
-- `tipos_penales_base_ampliada.csv`
-- `subcriterios_MCPI_IRCP_app_unico.xlsx`
-
-## Streamlit Cloud
-
-- Repository: `qenkecuador-eng/mcpi-ircp-app`
-- Branch: `main`
-- Main file path: `app.py`
+1
