@@ -1,16 +1,29 @@
-MCPI-IRCP-I — Versión matriz
+# Matriz MCPI-IRCP-I v5 editable
 
-Esta versión muestra celdas editables para:
+Versión mejorada de la aplicación para evaluar riesgo de criminalización penal intercultural.
 
-1. Control formal.
-2. Control material.
-3. Test europeo de proporcionalidad.
-4. Ponderación de Alexy.
-5. Índice global CPI e IRCP-I.
+## Novedades
 
-Uso:
-1. Descomprimir el ZIP.
-2. Abrir la carpeta.
-3. Doble clic en INICIAR_APP_MATRIZ.bat.
-4. Si aparece Email, presionar ENTER.
-5. Abrir http://localhost:8501 si no abre automáticamente.
+- Base ampliada de delitos de Argentina y Ecuador.
+- Edición directa de valores de las tablas.
+- Módulo para añadir nuevos delitos/tipos penales.
+- Importar y exportar CSV/Excel.
+- Dashboard comparativo.
+- Informe Word por caso.
+
+## Archivos para Streamlit Cloud
+
+- app.py
+- requirements.txt
+- tipos_penales_base_ampliada.csv
+
+## Despliegue
+
+En Streamlit Cloud:
+- Repository: qenkecuador-eng/mcpi-ircp-app
+- Branch: main
+- Main file path: app.py
+
+## Persistencia
+
+Los cambios que hagan los usuarios en Streamlit Cloud quedan en la sesión. Para hacer cambios permanentes, descargue el CSV actualizado y reemplace `tipos_penales_base_ampliada.csv` en GitHub.
