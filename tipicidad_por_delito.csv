@@ -1,0 +1,24 @@
+﻿pais,articulo,tipo_penal,elemento,pregunta_judicial,respuesta_esperada,dimension
+Argentina,art. 194 CP,Obstrucción de vías o servicios,Acción típica,"¿Se impidió, estorbó o entorpeció la circulación, transporte o servicio?",Sí / Parcial / No,Tipicidad estricta
+Argentina,art. 194 CP,Obstrucción de vías o servicios,Umbral de afectación,"¿La afectación fue concreta, relevante y no meramente simbólica?",Sí / Parcial / No,Lesividad
+Argentina,art. 194 CP,Obstrucción de vías o servicios,Autoría individualizada,¿Se individualizó la conducta concreta de cada persona imputada?,Sí / Parcial / No,Prueba
+Argentina,art. 194 CP,Obstrucción de vías o servicios,Protesta protegida,¿La conducta excedió claramente el ejercicio legítimo de protesta?,Sí / Parcial / No,Convencionalidad
+Argentina,art. 181 CP,Usurpación,Despojo o invasión,"¿Se acredita despojo, invasión o permanencia penalmente relevante y no solo controversia territorial?",Sí / Parcial / No,Tipicidad estricta
+Argentina,art. 181 CP,Usurpación,"Violencia, amenaza o clandestinidad",¿Se acredita medio comisivo típico y no mera recuperación territorial pacífica?,Sí / Parcial / No,Lesividad
+Argentina,art. 210 CP,Asociación ilícita,Organización criminal,¿Existe estructura estable orientada a cometer delitos y no organización comunitaria?,Sí / Parcial / No,Tipicidad estricta
+Argentina,art. 210 CP,Asociación ilícita,Finalidad delictiva,¿Se acredita finalidad delictiva permanente y roles criminales?,Sí / Parcial / No,Prueba
+Argentina,art. 239 CP,Resistencia o desobediencia a la autoridad,Orden legítima,"¿La orden estatal era clara, legítima y comunicada de forma suficiente?",Sí / Parcial / No,Legalidad
+Argentina,art. 239 CP,Resistencia o desobediencia a la autoridad,Resistencia penalmente relevante,¿La conducta excedió una resistencia civil o protesta pacífica?,Sí / Parcial / No,Mínima intervención
+Argentina,arts. 237–238 CP,Atentado contra la autoridad,Violencia o intimidación,¿Se acredita violencia o intimidación concreta contra autoridad?,Sí / Parcial / No,Lesividad
+Argentina,arts. 149 bis / 149 ter CP,Amenazas y coacciones,Amenaza individualizada,"¿Existe amenaza concreta, seria, individualizada e ilegítima?",Sí / Parcial / No,Tipicidad estricta
+Argentina,arts. 183–184 CP,Daños y daños agravados,Daño material,¿Se acredita daño material real y atribuible individualmente?,Sí / Parcial / No,Lesividad
+Argentina,art. 209 CP,Instigación a cometer delitos,Incitación directa,"¿Existe llamado directo, concreto e inmediato a cometer delitos?",Sí / Parcial / No,Expresión
+Argentina,art. 211 CP,Intimidación pública,Alarma pública grave,¿Se acredita intimidación pública grave y no solo discurso político?,Sí / Parcial / No,Expresión
+Argentina,art. 41 quinquies CP,Agravante de finalidad terrorista,Finalidad terrorista,¿Se acredita finalidad de aterrorizar a la población o coaccionar autoridades por medios graves?,Sí / Parcial / No,Proporcionalidad
+Ecuador,art. 346 COIP,Paralización de servicio público,Paralización real,"¿Se acredita paralización real, relevante y no meramente parcial o simbólica?",Sí / Parcial / No,Lesividad
+Ecuador,art. 345 COIP,Sabotaje,Daño grave a servicio o infraestructura,"¿Se acredita daño grave, riesgo cierto o afectación material relevante?",Sí / Parcial / No,Lesividad
+Ecuador,art. 366 COIP,Terrorismo,Finalidad terrorista,"¿Se acredita finalidad de causar terror, violencia grave o daño indiscriminado?",Sí / Parcial / No,Proporcionalidad
+Ecuador,art. 369 COIP,Delincuencia organizada,Grupo estructurado criminal,¿Existe grupo estructurado para delitos graves y no organización comunitaria?,Sí / Parcial / No,Tipicidad estricta
+Ecuador,art. 370 COIP,Asociación ilícita,Acuerdo delictivo,¿Existe acuerdo para cometer delitos y no coordinación comunitaria legítima?,Sí / Parcial / No,Tipicidad estricta
+Ecuador,art. 200 COIP,Usurpación,Ocupación penalmente relevante,¿Se acredita ocupación típica y no conflicto de territorio ancestral o posesión comunitaria?,Sí / Parcial / No,Interculturalidad
+Ecuador,arts. 283 y 282 COIP,Ataque o resistencia / incumplimiento de decisiones,Resistencia penalmente relevante,"¿Existe violencia, amenaza o incumplimiento grave y no mera protesta civil?",Sí / Parcial / No,Mínima intervención

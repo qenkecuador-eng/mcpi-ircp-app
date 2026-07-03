@@ -1,32 +1,38 @@
-# Matriz MCPI-IRCP-I v7 · Evaluación desde supuesto de hecho
+# MCPI-IRCP-I v8 · Motor judicial de compatibilidad penal intercultural
 
-Versión de Streamlit con trazabilidad completa:
+Herramienta Streamlit de apoyo judicial para evaluar compatibilidad penal intercultural y riesgo de criminalización de protesta indígena.
 
-**Hechos acreditados → subcriterios → variables → CPI → IRCP-I**
+## Flujo
 
-## Archivos requeridos
+Hechos acreditados → prueba → tipicidad → convencionalidad → subcriterios → variables → CPI → IRCP-I → motivación judicial.
 
-- `app.py`
-- `requirements.txt`
-- `tipos_penales_base_ampliada.csv`
-- `subcriterios_MCPI_IRCP_app_unico.xlsx`
-- `supuestos_hecho_base.csv`
+## Archivos requeridos en la raíz del repositorio
 
-## Novedades v7
+- app.py
+- requirements.txt
+- tipos_penales_base_ampliada.csv
+- subcriterios_MCPI_IRCP_app_unico.xlsx
+- supuestos_hecho_base.csv
+- tipicidad_por_delito.csv
+- estandares_convencionalidad.csv
+- jurisprudencia_base.csv
 
-- Módulo `Supuesto de hecho`.
-- Módulo `Evaluación desde hechos`.
-- Caso precargado: corte temporal de ruta indígena frente a proyecto extractivo inconsulto.
-- Matriz de trazabilidad hecho → variable → impacto metodológico.
-- Valores sugeridos desde hechos acreditados.
-- Edición manual de subcriterios antes del cálculo.
-- Exportación de informe Word y Excel completo.
-- Análisis de sensibilidad.
+## Módulos v8
+
+1. Expediente del caso
+2. Evaluación desde hechos
+3. Control probatorio
+4. Tipicidad estricta
+5. Control de convencionalidad
+6. Contradicción procesal
+7. Motivación judicial asistida
+8. Base jurisprudencial
+9. Comparador Argentina-Ecuador
+10. Dashboard de riesgos
+11. Análisis de sensibilidad
+12. Auditoría y trazabilidad
+13. Administración de bases
 
 ## Streamlit Cloud
 
-Configurar:
-
-- Repository: `qenkecuador-eng/mcpi-ircp-app`
-- Branch: `main`
-- Main file path: `app.py`
+Main file path: app.py
