@@ -1,29 +1,32 @@
-# Matriz MCPI-IRCP-I v5 editable
+# Matriz MCPI-IRCP-I v7 · Evaluación desde supuesto de hecho
 
-Versión mejorada de la aplicación para evaluar riesgo de criminalización penal intercultural.
+Versión de Streamlit con trazabilidad completa:
 
-## Novedades
+**Hechos acreditados → subcriterios → variables → CPI → IRCP-I**
 
-- Base ampliada de delitos de Argentina y Ecuador.
-- Edición directa de valores de las tablas.
-- Módulo para añadir nuevos delitos/tipos penales.
-- Importar y exportar CSV/Excel.
-- Dashboard comparativo.
-- Informe Word por caso.
+## Archivos requeridos
 
-## Archivos para Streamlit Cloud
+- `app.py`
+- `requirements.txt`
+- `tipos_penales_base_ampliada.csv`
+- `subcriterios_MCPI_IRCP_app_unico.xlsx`
+- `supuestos_hecho_base.csv`
 
-- app.py
-- requirements.txt
-- tipos_penales_base_ampliada.csv
+## Novedades v7
 
-## Despliegue
+- Módulo `Supuesto de hecho`.
+- Módulo `Evaluación desde hechos`.
+- Caso precargado: corte temporal de ruta indígena frente a proyecto extractivo inconsulto.
+- Matriz de trazabilidad hecho → variable → impacto metodológico.
+- Valores sugeridos desde hechos acreditados.
+- Edición manual de subcriterios antes del cálculo.
+- Exportación de informe Word y Excel completo.
+- Análisis de sensibilidad.
 
-En Streamlit Cloud:
-- Repository: qenkecuador-eng/mcpi-ircp-app
-- Branch: main
-- Main file path: app.py
+## Streamlit Cloud
 
-## Persistencia
+Configurar:
 
-Los cambios que hagan los usuarios en Streamlit Cloud quedan en la sesión. Para hacer cambios permanentes, descargue el CSV actualizado y reemplace `tipos_penales_base_ampliada.csv` en GitHub.
+- Repository: `qenkecuador-eng/mcpi-ircp-app`
+- Branch: `main`
+- Main file path: `app.py`
