@@ -52,3 +52,10 @@ La app no decide casos. Estructura el razonamiento jurídico y exige control hum
 - Se agrega `catalogo_descripciones_tipo_penal.csv`.
 - En `1. Expediente del caso`, apartado `Descripción`, se puede cargar un catálogo exhaustivo de supuestos comunes de criminalización para cada tipo penal.
 - El catálogo es editable desde `Administración de bases`.
+
+
+## Corrección v11 del catálogo de descripciones
+
+El catálogo fue depurado para evitar confusión: ya no se cargan supuestos genéricos iguales para todos los delitos.  
+Cada tipo penal tiene ahora únicamente supuestos compatibles con su núcleo típico.  
+Ejemplo: apología contiene solo discursos, comunicados, defensa pública o convocatoria; usurpación contiene recuperación territorial, permanencia o ingreso a predio; sabotaje contiene infraestructura, daño grave o afectación esencial.
