@@ -271,6 +271,41 @@ def score_desde_hechos(hechos, base):
     ], columns=["Hecho del caso","Estado","Variable afectada","Impacto metodológico"])
     return sub, traz, valores
 
+
+def validar_pesos_subcriterios(df):
+    if df is None or df.empty:
+        return pd.DataFrame(columns=["Variable", "Suma de pesos", "Estado"])
+    tmp = df.copy()
+    tmp["Peso"] = pd.to_numeric(tmp["Peso"], errors="coerce").fillna(0)
+    resumen = tmp.groupby("Variable", as_index=False)["Peso"].sum().rename(columns={"Peso": "Suma de pesos"})
+    resumen["Suma de pesos"] = resumen["Suma de pesos"].round(4)
+    resumen["Estado"] = resumen["Suma de pesos"].apply(lambda x: "Correcto" if abs(float(x) - 1.0) <= 0.001 else "Revisar")
+    return resumen
+
+def normalizar_pesos_subcriterios(df):
+    if df is None or df.empty:
+        return df
+    tmp = df.copy()
+    tmp["Peso"] = pd.to_numeric(tmp["Peso"], errors="coerce").fillna(0)
+    tmp["Valor"] = pd.to_numeric(tmp["Valor"], errors="coerce").fillna(0).clip(0, 100)
+    for variable in tmp["Variable"].dropna().unique():
+        mask = tmp["Variable"] == variable
+        suma = tmp.loc[mask, "Peso"].sum()
+        if suma > 0:
+            tmp.loc[mask, "Peso"] = tmp.loc[mask, "Peso"] / suma
+    tmp["Peso"] = tmp["Peso"].round(6)
+    tmp["Aporte"] = (tmp["Peso"] * tmp["Valor"]).round(2)
+    return tmp
+
+def calcular_variables_desde_subcriterios(df):
+    tmp = df.copy()
+    tmp["Peso"] = pd.to_numeric(tmp["Peso"], errors="coerce").fillna(0)
+    tmp["Valor"] = pd.to_numeric(tmp["Valor"], errors="coerce").fillna(0).clip(0, 100)
+    tmp["Aporte"] = (tmp["Peso"] * tmp["Valor"]).round(2)
+    var_df = tmp.groupby("Variable", as_index=False)["Aporte"].sum().rename(columns={"Aporte": "Valor"})
+    valores = {r["Variable"]: float(r["Valor"]) for _, r in var_df.iterrows()}
+    return tmp, var_df, valores
+
 def componentes(res):
     return pd.DataFrame([
         {"Componente": "Control formal", "Valor": res["Formal"], "Peso CPI": 0.25, "Aporte": round(res["Formal"] * 0.25, 2)},
@@ -360,7 +395,7 @@ def log_event(action):
         "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "Acción": action,
         "Caso": st.session_state.hechos.get("nombre_caso",""),
-        "Versión": "MCPI-IRCP-I v8"
+        "Versión": "MCPI-IRCP-I v9"
     })
 
 def fact_editor(hechos, prefix):
@@ -420,7 +455,7 @@ def render_result(res, hechos):
 
 init_state()
 
-st.title("MCPI–IRCP-I v8 · Motor judicial de compatibilidad penal intercultural")
+st.title("MCPI–IRCP-I v9 · Motor judicial ampliado")
 st.caption("Herramienta de apoyo: no reemplaza valoración judicial, prueba, contradicción ni motivación individual del caso.")
 
 menu = st.sidebar.radio("Módulos", [
@@ -436,7 +471,9 @@ menu = st.sidebar.radio("Módulos", [
     "10. Dashboard de riesgos",
     "11. Análisis de sensibilidad",
     "12. Auditoría y trazabilidad",
-    "13. Administración de bases",
+    "13. Matriz de pesos editables",
+    "14. Ideas para operadores de justicia",
+    "15. Administración de bases",
 ])
 
 if menu == "1. Expediente del caso":
@@ -460,22 +497,61 @@ elif menu == "2. Evaluación desde hechos":
     st.subheader("Matriz de trazabilidad hecho → variable")
     st.dataframe(traz, hide_index=True, use_container_width=True)
     st.subheader("Subcriterios sugeridos desde hechos")
+    st.info("Puede editar tanto el valor como el peso de cada subcriterio. Para cada variable, la suma de pesos debe ser 1.00. Si no suma 1.00, la app lo advertirá y podrá normalizar automáticamente.")
     sub_edit=st.data_editor(sub, hide_index=True, use_container_width=True,
         column_config={"Valor": st.column_config.NumberColumn("Valor 0-100", min_value=0, max_value=100, step=1),
-                       "Peso": st.column_config.NumberColumn("Peso", disabled=True, format="%.2f"),
+                       "Peso": st.column_config.NumberColumn("Peso editable", min_value=0.0, max_value=1.0, step=0.01, format="%.2f"),
                        "Aporte": st.column_config.NumberColumn("Aporte", disabled=True, format="%.2f"),
                        "Explicación metodológica": st.column_config.TextColumn(width="large")},
-        disabled=["Modulo","Variable","Codigo","Subcriterio","Peso","Aporte","Explicación metodológica"])
+        disabled=["Modulo","Variable","Codigo","Subcriterio","Aporte","Explicación metodológica"])
     sub_edit["Valor"]=pd.to_numeric(sub_edit["Valor"], errors="coerce").fillna(0).clip(0,100)
-    sub_edit["Aporte"]=(sub_edit["Peso"].astype(float)*sub_edit["Valor"]).round(2)
-    var_df=sub_edit.groupby("Variable", as_index=False)["Aporte"].sum().rename(columns={"Aporte":"Valor"})
+    sub_edit["Peso"]=pd.to_numeric(sub_edit["Peso"], errors="coerce").fillna(0).clip(0,1)
+
+    st.subheader("Control de pesos por variable")
+    resumen_pesos = validar_pesos_subcriterios(sub_edit)
+    st.dataframe(resumen_pesos, hide_index=True, use_container_width=True)
+
+    colp1, colp2, colp3 = st.columns(3)
+    with colp1:
+        normalizar = st.button("Normalizar pesos automáticamente")
+    with colp2:
+        guardar_pesos = st.button("Guardar pesos editados en sesión")
+    with colp3:
+        restaurar = st.button("Restaurar pesos base del caso")
+
+    if normalizar:
+        sub_edit = normalizar_pesos_subcriterios(sub_edit)
+        st.success("Pesos normalizados. La suma de pesos por variable ahora es 1.00.")
+        log_event("Normalizar pesos de subcriterios")
+
+    if guardar_pesos:
+        st.session_state.sub = sub_edit.copy()
+        st.success("Pesos editados guardados en la sesión.")
+        log_event("Guardar pesos editados")
+
+    if restaurar:
+        sub_edit = sub.copy()
+        st.success("Pesos restaurados al esquema base del modelo.")
+        log_event("Restaurar pesos base")
+
+    sub_edit, var_df, valores = calcular_variables_desde_subcriterios(sub_edit)
+
+    if (validar_pesos_subcriterios(sub_edit)["Estado"] == "Revisar").any():
+        st.warning("Hay variables cuyos pesos no suman 1.00. El cálculo se realiza igual, pero debe interpretarse como escenario metodológico alternativo.")
+
     st.subheader("Variables calculadas")
     st.dataframe(var_df, hide_index=True, use_container_width=True)
-    valores={r["Variable"]:float(r["Valor"]) for _,r in var_df.iterrows()}
     res=calcular_indice(valores)
     st.session_state.resultado=res; st.session_state.sub=sub_edit; st.session_state.traz=traz
-    log_event("Ejecutar evaluación desde hechos")
+    log_event("Ejecutar evaluación desde hechos con pesos editables")
     render_result(res, st.session_state.hechos)
+
+    st.download_button(
+        "Descargar subcriterios con pesos editados CSV",
+        sub_edit.to_csv(index=False).encode("utf-8-sig"),
+        "subcriterios_pesos_editados.csv",
+        "text/csv"
+    )
 
 elif menu == "3. Control probatorio":
     st.header("3. Control probatorio")
@@ -490,7 +566,7 @@ elif menu == "3. Control probatorio":
         {"Hecho crítico":"Autoría individualizada","Estado":st.session_state.hechos.get("prueba_individualizada","No consta"),"Fuente probatoria":"","Impacto":"Prueba / tipicidad"},
     ])
     edited=st.data_editor(default, num_rows="dynamic", hide_index=True, use_container_width=True,
-        column_config={"Estado": st.column_config.SelectboxColumn(options=["Sí","No","No consta","No aplica","No / deficiente"])})
+        column_config={"Estado": st.column_config.SelectboxColumn(options=["Sí","No","No consta","No aplica","No / deficiente","Parcial","Alegado por Fiscalía","Alegado por defensa","Controvertido"])})
     st.session_state.prob=edited
     faltan=edited[(edited["Estado"].isin(["Sí","No / deficiente"])) & (edited["Fuente probatoria"].astype(str).str.len()==0)]
     if not faltan.empty:
@@ -572,13 +648,26 @@ elif menu == "7. Motivación judicial asistida":
 
 elif menu == "8. Base jurisprudencial":
     st.header("8. Base jurisprudencial y estándares")
-    query=st.text_input("Buscar por tema, fuente o regla", "")
+    st.info("Base ampliada con casos de la tesis, estándares del Sistema Interamericano, precedentes de consulta previa, protesta, criminalización y control de convencionalidad. Las filas pueden editarse desde Administración de bases.")
+    query=st.text_input("Buscar por tema, fuente, regla, tipo penal o estándar", "")
     df=st.session_state.juris.copy()
     if query:
         mask=df.astype(str).apply(lambda col: col.str.contains(query, case=False, na=False)).any(axis=1)
         df=df[mask]
+    colj1, colj2, colj3 = st.columns(3)
+    with colj1:
+        fuente_sel = st.selectbox("Filtrar por fuente", ["Todas"] + sorted(st.session_state.juris["fuente"].astype(str).unique().tolist()) if "fuente" in st.session_state.juris.columns else ["Todas"])
+    with colj2:
+        impacto_sel = st.selectbox("Filtrar por impacto", ["Todos"] + sorted(st.session_state.juris["impacto_en_indice"].astype(str).unique().tolist()) if "impacto_en_indice" in st.session_state.juris.columns else ["Todos"])
+    with colj3:
+        st.metric("Registros visibles", len(df))
+    if fuente_sel != "Todas" and "fuente" in df.columns:
+        df = df[df["fuente"].astype(str) == fuente_sel]
+    if impacto_sel != "Todos" and "impacto_en_indice" in df.columns:
+        df = df[df["impacto_en_indice"].astype(str) == impacto_sel]
     st.dataframe(df, hide_index=True, use_container_width=True)
-    st.info("Base inicial editable. Validar citas y fuentes antes de uso judicial.")
+    st.download_button("Descargar base jurisprudencial filtrada CSV", df.to_csv(index=False).encode("utf-8-sig"), "base_jurisprudencial_estandares_filtrada.csv", "text/csv")
+    st.warning("Nota metodológica: no todos los eventos de criminalización son sentencias. Cuando no exista sentencia identificada, deben clasificarse como casos documentados de judicialización o criminalización, no como jurisprudencia.")
 
 elif menu == "9. Comparador Argentina-Ecuador":
     st.header("9. Comparador Argentina–Ecuador")
@@ -631,8 +720,102 @@ elif menu == "12. Auditoría y trazabilidad":
     st.dataframe(pd.DataFrame(st.session_state.auditoria), hide_index=True, use_container_width=True)
     st.download_button("Descargar auditoría CSV", pd.DataFrame(st.session_state.auditoria).to_csv(index=False).encode("utf-8-sig"), "auditoria_MCPI_IRCP.csv", "text/csv")
 
+elif menu == "13. Matriz de pesos editables":
+    st.header("13. Matriz de pesos editables")
+    st.info("Este módulo permite revisar, editar, validar y exportar los pesos de subcriterios usados en el caso activo.")
+    if st.session_state.sub is None or st.session_state.sub.empty:
+        sub, traz, valores = score_desde_hechos(st.session_state.hechos, st.session_state.base)
+        st.session_state.sub = sub
+        st.session_state.traz = traz
+
+    editable = st.data_editor(
+        st.session_state.sub,
+        num_rows="dynamic",
+        hide_index=True,
+        use_container_width=True,
+        column_config={
+            "Peso": st.column_config.NumberColumn("Peso editable", min_value=0.0, max_value=1.0, step=0.01, format="%.2f"),
+            "Valor": st.column_config.NumberColumn("Valor 0-100", min_value=0, max_value=100, step=1),
+            "Aporte": st.column_config.NumberColumn("Aporte", disabled=True, format="%.2f"),
+            "Explicación metodológica": st.column_config.TextColumn(width="large"),
+        },
+        disabled=["Aporte"]
+    )
+    editable["Peso"] = pd.to_numeric(editable["Peso"], errors="coerce").fillna(0).clip(0, 1)
+    editable["Valor"] = pd.to_numeric(editable["Valor"], errors="coerce").fillna(0).clip(0, 100)
+    editable["Aporte"] = (editable["Peso"] * editable["Valor"]).round(2)
+
+    st.subheader("Validación de suma de pesos")
+    resumen = validar_pesos_subcriterios(editable)
+    st.dataframe(resumen, hide_index=True, use_container_width=True)
+
+    c1, c2, c3 = st.columns(3)
+    if c1.button("Aplicar pesos a la sesión"):
+        st.session_state.sub = editable.copy()
+        _, var_df, valores = calcular_variables_desde_subcriterios(editable)
+        st.session_state.resultado = calcular_indice(valores)
+        st.success("Pesos aplicados a la sesión.")
+        log_event("Aplicar matriz de pesos editable")
+    if c2.button("Normalizar y aplicar"):
+        editable = normalizar_pesos_subcriterios(editable)
+        st.session_state.sub = editable.copy()
+        _, var_df, valores = calcular_variables_desde_subcriterios(editable)
+        st.session_state.resultado = calcular_indice(valores)
+        st.success("Pesos normalizados y aplicados.")
+        log_event("Normalizar y aplicar matriz de pesos")
+    if c3.button("Recalcular resultado"):
+        _, var_df, valores = calcular_variables_desde_subcriterios(editable)
+        res = calcular_indice(valores)
+        st.session_state.resultado = res
+        render_result(res, st.session_state.hechos)
+
+    st.download_button(
+        "Descargar matriz de pesos CSV",
+        editable.to_csv(index=False).encode("utf-8-sig"),
+        "matriz_pesos_subcriterios_MCPI_IRCP.csv",
+        "text/csv"
+    )
+    st.download_button(
+        "Descargar matriz de pesos Excel",
+        to_excel({"Pesos_subcriterios": editable, "Validacion_pesos": resumen}),
+        "matriz_pesos_subcriterios_MCPI_IRCP.xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+elif menu == "14. Ideas para operadores de justicia":
+    st.header("14. Ideas para operadores de justicia")
+    ideas = pd.DataFrame([
+        {"Mejora": "Modo juez", "Descripción": "Formulario breve para resolver caso concreto: hechos, prueba, tipicidad, convencionalidad y motivación."},
+        {"Mejora": "Modo fiscalía", "Descripción": "Filtro previo de imputación: exige daño grave, prueba individualizada, dolo específico y alternativas no penales agotadas."},
+        {"Mejora": "Modo defensa / amicus", "Descripción": "Genera argumentos sobre mínima intervención, protesta protegida, consulta previa y enfoque intercultural."},
+        {"Mejora": "Matriz de prueba", "Descripción": "Cada hecho crítico debe estar vinculado a fuente probatoria, grado de certeza y contradicción procesal."},
+        {"Mejora": "Alertas de criminalización", "Descripción": "Alertas automáticas cuando se use terrorismo, sabotaje, asociación ilícita o rebelión sin violencia grave."},
+        {"Mejora": "Control de consulta previa", "Descripción": "Checklist específico para verificar si el conflicto surge de falta de consulta o afectación territorial."},
+        {"Mejora": "Control de medidas cautelares", "Descripción": "Módulo para evaluar prisión preventiva, detención, estado de excepción y uso de fuerza."},
+        {"Mejora": "Repositorio de precedentes", "Descripción": "Búsqueda por país, delito, derecho afectado, estándar SIDH y utilidad para decisión judicial."},
+        {"Mejora": "Informe judicial con doble versión", "Descripción": "Versión corta para audiencia y versión larga para sentencia o dictamen."},
+        {"Mejora": "Auditoría institucional", "Descripción": "Registro de quién cambió pesos, hechos, fuentes y conclusiones para trazabilidad."},
+        {"Mejora": "Validación experta", "Descripción": "Encuesta para jueces, fiscales, defensores, académicos y autoridades indígenas sobre pesos y resultados."},
+        {"Mejora": "Panel de riesgos por territorio", "Descripción": "Mapa o tablero por provincia, tipo penal y contexto extractivo/territorial."},
+    ])
+    st.dataframe(ideas, hide_index=True, use_container_width=True)
+    st.download_button("Descargar ideas CSV", ideas.to_csv(index=False).encode("utf-8-sig"), "ideas_mejora_operadores_justicia.csv", "text/csv")
+    st.markdown("""
+### Recomendación de uso institucional
+
+La app debe presentarse como herramienta de apoyo y no como sistema de decisión automática. Para uso por operadores de justicia, cada resultado debe estar respaldado por:
+
+1. hecho acreditado;
+2. fuente probatoria;
+3. elemento típico;
+4. estándar constitucional o interamericano;
+5. subcriterio afectado;
+6. fórmula aplicada;
+7. motivación humana final.
+""")
+
 else:
-    st.header("13. Administración de bases")
+    st.header("15. Administración de bases")
     tabs=st.tabs(["Delitos","Supuestos","Subcriterios","Tipicidad","Convencionalidad","Jurisprudencia"])
     with tabs[0]:
         st.session_state.base=st.data_editor(st.session_state.base, num_rows="dynamic", hide_index=True, use_container_width=True)
@@ -652,4 +835,4 @@ else:
         st.session_state.juris=st.data_editor(st.session_state.juris, num_rows="dynamic", hide_index=True, use_container_width=True)
         st.download_button("Descargar jurisprudencia CSV", st.session_state.juris.to_csv(index=False).encode("utf-8-sig"), "jurisprudencia_base.csv", "text/csv")
 
-st.caption("MCPI–IRCP-I v8. Herramienta académica y judicial de apoyo. La decisión final corresponde exclusivamente a la autoridad competente.")
+st.caption("MCPI–IRCP-I v9. Herramienta académica y judicial de apoyo con pesos editables, supuestos ampliados y base jurisprudencial reforzada. La decisión final corresponde exclusivamente a la autoridad competente.")
