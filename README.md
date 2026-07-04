@@ -35,6 +35,7 @@ Herramienta Streamlit de apoyo judicial para evaluar compatibilidad penal interc
 - tipicidad_por_delito.csv
 - estandares_convencionalidad.csv
 - jurisprudencia_base.csv
+- catalogo_descripciones_tipo_penal.csv
 - README.md
 
 ## Streamlit Cloud
@@ -44,3 +45,10 @@ Main file path: `app.py`.
 ## Nota metodológica
 
 La app no decide casos. Estructura el razonamiento jurídico y exige control humano, prueba, contradicción, motivación, tipicidad estricta, proporcionalidad, mínima intervención y enfoque intercultural.
+
+
+## Novedad v10
+
+- Se agrega `catalogo_descripciones_tipo_penal.csv`.
+- En `1. Expediente del caso`, apartado `Descripción`, se puede cargar un catálogo exhaustivo de supuestos comunes de criminalización para cada tipo penal.
+- El catálogo es editable desde `Administración de bases`.

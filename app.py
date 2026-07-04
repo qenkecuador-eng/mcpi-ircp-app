@@ -17,6 +17,7 @@ SUPUESTOS_PATH = APP_DIR / "supuestos_hecho_base.csv"
 TIPICIDAD_PATH = APP_DIR / "tipicidad_por_delito.csv"
 ESTANDARES_PATH = APP_DIR / "estandares_convencionalidad.csv"
 JURIS_PATH = APP_DIR / "jurisprudencia_base.csv"
+CATALOGO_DESC_PATH = APP_DIR / "catalogo_descripciones_tipo_penal.csv"
 
 st.set_page_config(
     page_title="MCPI-IRCP-I v8",
@@ -373,6 +374,7 @@ def init_state():
     if "tipicidad" not in st.session_state: st.session_state.tipicidad = load_csv(TIPICIDAD_PATH)
     if "estandares" not in st.session_state: st.session_state.estandares = load_csv(ESTANDARES_PATH)
     if "juris" not in st.session_state: st.session_state.juris = load_csv(JURIS_PATH)
+    if "catalogo_desc" not in st.session_state: st.session_state.catalogo_desc = load_csv(CATALOGO_DESC_PATH)
     if "hechos" not in st.session_state:
         st.session_state.hechos = st.session_state.supuestos.iloc[0].to_dict() if not st.session_state.supuestos.empty else {}
     if "auditoria" not in st.session_state: st.session_state.auditoria = []
@@ -486,6 +488,30 @@ if menu == "1. Expediente del caso":
             st.session_state.hechos=st.session_state.supuestos.loc[idx].to_dict()
             log_event("Cargar supuesto")
             st.success("Supuesto cargado.")
+    st.subheader("Catálogo exhaustivo para el campo Descripción")
+    st.info("Seleccione un tipo penal y cargue en el campo Descripción una recopilación amplia de supuestos comunes de criminalización de protesta indígena.")
+    cat = st.session_state.catalogo_desc.copy() if "catalogo_desc" in st.session_state else pd.DataFrame()
+    if not cat.empty:
+        opts_cat = [f"{i} | {r['pais']} | {r['articulo']} | {r['tipo_penal']}" for i, r in cat.iterrows()]
+        current_tipo = str(st.session_state.hechos.get("tipo_penal", "")).lower()
+        default_cat_idx = 0
+        for ii, opt in enumerate(opts_cat):
+            if current_tipo and current_tipo in opt.lower():
+                default_cat_idx = ii
+                break
+        sel_cat = st.selectbox("Catálogo de supuestos por tipo penal", opts_cat, index=default_cat_idx)
+        idx_cat = int(sel_cat.split("|")[0].strip())
+        with st.expander("Ver catálogo antes de cargar", expanded=False):
+            st.text_area("Catálogo disponible", cat.loc[idx_cat, "catalogo_descripcion"], height=360, key="catalogo_preview")
+        if st.button("Cargar catálogo exhaustivo en Descripción"):
+            st.session_state.hechos["pais"] = cat.loc[idx_cat, "pais"]
+            st.session_state.hechos["norma"] = cat.loc[idx_cat, "norma"]
+            st.session_state.hechos["articulo"] = cat.loc[idx_cat, "articulo"]
+            st.session_state.hechos["tipo_penal"] = cat.loc[idx_cat, "tipo_penal"]
+            st.session_state.hechos["descripcion"] = cat.loc[idx_cat, "catalogo_descripcion"]
+            log_event("Cargar catálogo exhaustivo en descripción")
+            st.success("Catálogo cargado en el campo Descripción. Revise y edite el texto si corresponde.")
+
     st.session_state.hechos = fact_editor(dict(st.session_state.hechos), "exp")
     if st.button("Guardar expediente en sesión"):
         log_event("Guardar expediente")
@@ -816,7 +842,7 @@ La app debe presentarse como herramienta de apoyo y no como sistema de decisión
 
 else:
     st.header("15. Administración de bases")
-    tabs=st.tabs(["Delitos","Supuestos","Subcriterios","Tipicidad","Convencionalidad","Jurisprudencia"])
+    tabs=st.tabs(["Delitos","Supuestos","Subcriterios","Tipicidad","Convencionalidad","Jurisprudencia","Catálogo descripciones"])
     with tabs[0]:
         st.session_state.base=st.data_editor(st.session_state.base, num_rows="dynamic", hide_index=True, use_container_width=True)
         st.download_button("Descargar delitos CSV", st.session_state.base.to_csv(index=False).encode("utf-8-sig"), "tipos_penales_base_ampliada.csv", "text/csv")
@@ -834,5 +860,10 @@ else:
     with tabs[5]:
         st.session_state.juris=st.data_editor(st.session_state.juris, num_rows="dynamic", hide_index=True, use_container_width=True)
         st.download_button("Descargar jurisprudencia CSV", st.session_state.juris.to_csv(index=False).encode("utf-8-sig"), "jurisprudencia_base.csv", "text/csv")
+    with tabs[6]:
+        if "catalogo_desc" not in st.session_state:
+            st.session_state.catalogo_desc = load_csv(CATALOGO_DESC_PATH)
+        st.session_state.catalogo_desc=st.data_editor(st.session_state.catalogo_desc, num_rows="dynamic", hide_index=True, use_container_width=True)
+        st.download_button("Descargar catálogo de descripciones CSV", st.session_state.catalogo_desc.to_csv(index=False).encode("utf-8-sig"), "catalogo_descripciones_tipo_penal.csv", "text/csv")
 
 st.caption("MCPI–IRCP-I v9. Herramienta académica y judicial de apoyo con pesos editables, supuestos ampliados y base jurisprudencial reforzada. La decisión final corresponde exclusivamente a la autoridad competente.")
